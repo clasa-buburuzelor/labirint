@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bubu și labirintul</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game">
+    <h1>Ajutați-o pe Bubu să ajungă la copilaș</h1>
+    <p id="level" class="level"></p>
+    <p class="hint">Apasă săgețile de pe tastatură ⬅️⬆️⬇️➡️</p>
+
+    <div id="maze" class="maze" aria-label="Labirint"></div>
+  </main>
+
+  <div id="next" class="win" hidden>
+    <div class="win-card">
+      <h2>Bravo! Ai trecut nivelul! 🐞</h2>
+      <button id="go-next" class="again">Nivelul următor ➡️</button>
+    </div>
+  </div>
+
+  <div id="win" class="win" hidden>
+    <div class="win-card">
+      <h2>Bravo! Ai reușit! 🎉</h2>
+      <img src="images/bubu-final.webp" alt="Poză de sărbătoare">
+      <button id="again" class="again">Joacă din nou</button>
+    </div>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
