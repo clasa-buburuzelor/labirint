@@ -88,7 +88,7 @@ function drawMaze() {
 
   const child = document.createElement("div");
   child.className = "child";
-  child.textContent = "👦";
+  child.textContent = "🖥️";
   child.style.width = 100 / COLS + "%";
   child.style.height = 100 / ROWS + "%";
   placeAt(child, COLS - 1, ROWS - 1);
