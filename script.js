@@ -199,64 +199,163 @@ function fanfare() {
   });
 }
 
-// Sleigh bells (zurgălăi), synthesized: each bell hit = a few inharmonic
-// metallic partials plus a short burst of high-pass filtered noise.
-let noiseBuffer = null;
+// Sleigh bells (zurgălăi)
+// A real strap of sleigh bells = many small closed bells, each with a loose
+// pellet inside. Every shake makes several bells ring a few milliseconds
+// apart, and inside each bell the pellet bounces 2-5 times, quieter each
+// time. Each strike rings with inharmonic metallic partials that die out
+// fast (higher partials faster), plus a short "tick" of the pellet.
+// The samples are computed once in plain JS (shortly after the page loads)
+// and then played as a buffer, so playing them costs almost no CPU.
 
-function getNoise(ctx) {
-  if (!noiseBuffer) {
-    noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-  }
+const BELL_RATE = 44100;
+const BELL_RATIOS = [1, 1.47, 2.09, 2.56, 3.22];
+const BELLS = Array.from({ length: 14 }, () => ({
+  freq: 2300 + Math.random() * 2400,
+  pan: Math.random() * 1.4 - 0.7,
+}));
 
-  return noiseBuffer;
-}
+function addStrike(L, R, bell, t, vel) {
+  const start = Math.round(t * BELL_RATE);
+  const angle = ((bell.pan + 1) * Math.PI) / 4;
+  const gl = Math.cos(angle);
+  const gr = Math.sin(angle);
+  const attack = Math.round(0.0015 * BELL_RATE);
 
-function bellHit(ctx, t, volume) {
-  const base = 2400 + Math.random() * 600;
+  BELL_RATIOS.forEach((ratio, i) => {
+    const f = bell.freq * ratio * (1 + (Math.random() - 0.5) * 0.008);
+    const decay = (0.32 / (1 + i * 0.7)) * (0.7 + Math.random() * 0.6); // seconds to -60 dB
+    const n = Math.min(Math.ceil(decay * BELL_RATE), L.length - start);
+    const w = (2 * Math.PI * f) / BELL_RATE;
+    const r = Math.exp(-6.9 / (decay * BELL_RATE)); // per-sample damping
+    const a = vel / Math.pow(i + 1, 0.7);
+    const phase = Math.random() * 2 * Math.PI;
+    // damped sine via recurrence: y[k] = 2 r cos(w) y[k-1] - r^2 y[k-2]
+    const c = 2 * r * Math.cos(w);
+    const r2 = r * r;
+    let y2 = a * Math.sin(phase - w) / r;
+    let y1 = a * Math.sin(phase);
 
-  [1, 1.5, 2.1, 2.8].forEach((ratio, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    const decay = 0.12 + Math.random() * 0.15;
-    osc.type = "sine";
-    osc.frequency.value = base * ratio;
-    gain.gain.setValueAtTime(volume / (i + 1), t);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + decay);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + decay);
+    for (let k = 0; k < n; k++) {
+      const env = k < attack ? k / attack : 1;
+      L[start + k] += y1 * env * gl;
+      R[start + k] += y1 * env * gr;
+      const y = c * y1 - r2 * y2;
+      y2 = y1;
+      y1 = y;
+    }
   });
 
-  const noise = ctx.createBufferSource();
-  const filter = ctx.createBiquadFilter();
-  const gain = ctx.createGain();
-  noise.buffer = getNoise(ctx);
-  filter.type = "highpass";
-  filter.frequency.value = 7000;
-  gain.gain.setValueAtTime(volume * 0.6, t);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
-  noise.connect(filter).connect(gain).connect(ctx.destination);
-  noise.start(t);
-  noise.stop(t + 0.06);
-}
-
-function jingleBells(seconds = 1.8) {
-  const ctx = getCtx();
-
-  if (!ctx) return;
-
-  // one "shake" every 0.18s; each shake = several bells hitting at once
-  for (let s = 0; s * 0.18 < seconds; s++) {
-    const shakeT = ctx.currentTime + s * 0.18;
-    const fade = 1 - (s * 0.18) / seconds;
-    const hits = 4 + Math.floor(Math.random() * 3);
-
-    for (let h = 0; h < hits; h++)
-      bellHit(ctx, shakeT + Math.random() * 0.06, (0.04 + Math.random() * 0.03) * (0.4 + 0.6 * fade));
+  // pellet tick: high-passed noise (first difference) with a 15 ms decay
+  const n = Math.min(Math.round(0.015 * BELL_RATE), L.length - start);
+  let prev = 0;
+  for (let k = 0; k < n; k++) {
+    const white = Math.random() * 2 - 1;
+    const v = (white - prev) * vel * 0.35 * Math.exp((-k / n) * 6);
+    prev = white;
+    L[start + k] += v * gl;
+    R[start + k] += v * gr;
   }
 }
+
+function shakeBells(L, R, t, strength) {
+  const count = 5 + Math.floor(Math.random() * 5);
+
+  for (let b = 0; b < count; b++) {
+    const bell = BELLS[Math.floor(Math.random() * BELLS.length)];
+    // bells on the strap move a little after one another
+    let at = t + ((Math.random() + Math.random() + Math.random()) / 3) * 0.09;
+    let vel = strength * (0.5 + Math.random() * 0.5);
+    const bounces = 2 + Math.floor(Math.random() * 4);
+
+    for (let k = 0; k < bounces; k++) {
+      addStrike(L, R, bell, at, vel);
+      at += 0.012 + Math.random() * 0.02;
+      vel *= 0.4 + Math.random() * 0.25;
+    }
+  }
+}
+
+// Small-room feel: a few early echoes, each later one quieter and darker,
+// alternating left/right.
+function addEchoes(L, R) {
+  const dry = [Float32Array.from(L), Float32Array.from(R)];
+  const out = [L, R];
+  let lowL = 0;
+  let lowR = 0;
+
+  for (let k = 0; k < L.length; k++) { // one-pole low-pass (~5 kHz)
+    lowL += (dry[0][k] - lowL) * 0.5;
+    lowR += (dry[1][k] - lowR) * 0.5;
+    dry[0][k] = lowL;
+    dry[1][k] = lowR;
+  }
+
+  [0.023, 0.031, 0.041, 0.059, 0.073, 0.097, 0.131, 0.17].forEach((time, i) => {
+    const d = Math.round(time * BELL_RATE);
+    const g = 0.3 * Math.pow(0.72, i);
+    const to = out[i % 2];
+    const from = dry[(i + 1) % 2]; // cross over for width
+
+    for (let k = d; k < to.length; k++) to[k] += from[k - d] * g;
+  });
+}
+
+function renderSleighBells(seconds) {
+  const len = Math.ceil(BELL_RATE * (seconds + 0.6));
+  const L = new Float32Array(len);
+  const R = new Float32Array(len);
+
+  // back-and-forth shaking: strong swing, weaker swing, slightly uneven
+  let t = 0.01;
+  for (let i = 0; t < seconds; i++) {
+    const fade = 1 - (t / seconds) * 0.6;
+    shakeBells(L, R, t, (i % 2 ? 0.6 : 1) * fade);
+    t += 0.17 + (Math.random() - 0.5) * 0.03;
+  }
+
+  addEchoes(L, R);
+
+  let peak = 0;
+  for (let k = 0; k < len; k++) peak = Math.max(peak, Math.abs(L[k]), Math.abs(R[k]));
+  const norm = peak ? 0.7 / peak : 0;
+  for (let k = 0; k < len; k++) { L[k] *= norm; R[k] *= norm; }
+
+  return [L, R];
+}
+
+const SONG_SECONDS = 5;
+let bellsShort = null; // [L, R] for a level finish
+let bellsLong = null; // [L, R] under the final song
+
+function prepareBells() {
+  if (SOUND !== "jingle" || bellsShort) return;
+
+  bellsShort = renderSleighBells(1.8);
+  bellsLong = renderSleighBells(SONG_SECONDS);
+}
+
+function playSamples(channels) {
+  const ctx = getCtx();
+
+  if (!ctx || !channels) return;
+
+  const buf = ctx.createBuffer(2, channels[0].length, BELL_RATE);
+  buf.getChannelData(0).set(channels[0]);
+  buf.getChannelData(1).set(channels[1]);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ctx.destination);
+  src.start();
+}
+
+function jingleBells() {
+  prepareBells();
+  playSamples(bellsShort);
+}
+
+// compute the bells while the child looks at the maze, not at the goal
+if (SOUND === "jingle") setTimeout(prepareBells, 500);
 
 // "Jingle bells, jingle bells, jingle all the way" with bells in the background
 function jingleSong() {
@@ -284,7 +383,8 @@ function jingleSong() {
     t += len * beat;
   });
 
-  jingleBells(t - ctx.currentTime + 0.5);
+  prepareBells();
+  playSamples(bellsLong);
 }
 
 function playGoalSound() {
