@@ -304,6 +304,20 @@ h1 {
   box-shadow: 0 2px 0 #b52b52;
 }
 
+/* "Next level" is green, like a go signal (beats the theme colors too) */
+.win .again.next {
+  background: linear-gradient(135deg, #4cd964, #1f9d3a);
+  box-shadow: 0 6px 0 #146b27;
+}
+
+.win .again.next:hover {
+  box-shadow: 0 8px 0 #146b27;
+}
+
+.win .again.next:active {
+  box-shadow: 0 2px 0 #146b27;
+}
+
 .confetti {
   position: absolute;
   inset: 0;
