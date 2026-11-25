@@ -10,13 +10,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-goal="🖥️">
-  <main class="game">
+  <main class="game play">
     <a href="index.html" class="back">⬅️ Meniu</a>
     <h1>Ajutați-o pe Bubu să ajungă la calculator</h1>
     <p id="level" class="level"></p>
     <p class="hint">Apasă săgețile de pe tastatură ⬅️⬆️⬇️➡️</p>
 
-    <div id="maze" class="maze" aria-label="Labirint"></div>
+    <div class="maze-wrap">
+      <div id="maze" class="maze" aria-label="Labirint"></div>
+    </div>
   </main>
 
   <div id="next" class="win" hidden>

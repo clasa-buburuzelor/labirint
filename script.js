@@ -80,7 +80,7 @@ function drawMaze() {
   mazeEl.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
 
   mazeEl.style.setProperty("--wall-w", (COLS >= 15 ? 3 : COLS >= 10 ? 4 : 6) + "px");
-  mazeEl.style.setProperty("--child-size", "calc(min(92vw, 62vh, 560px) / " + COLS + " * 0.7)");
+  mazeEl.style.setProperty("--child-size", "calc(var(--maze-size) / " + COLS + " * 0.7)");
 
   for (let y = 0; y < ROWS; y++) {
     for (let x = 0; x < COLS; x++) {

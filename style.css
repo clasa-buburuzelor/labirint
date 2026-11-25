@@ -78,7 +78,7 @@ body {
 }
 
 h1 {
-  font-size: clamp(1.6rem, 5vw, 2.5rem);
+  font-size: clamp(1.3rem, 4vw, 1.9rem);
   line-height: 1.15;
   margin: 8px 0 4px;
   font-weight: 800;
@@ -91,18 +91,47 @@ h1 {
 }
 
 .hint {
-  margin: 6px 0 12px;
+  margin: 4px 0 8px;
   font-size: clamp(1rem, 3vw, 1.3rem);
   font-weight: 600;
   color: #254b8a;
   text-shadow: 0 1px 0 #fff;
 }
 
+/* Game pages fill exactly one screen: the header takes what it needs and
+   the maze gets the remaining space (measured with container query units),
+   so the page never scrolls. */
+.play {
+  max-width: 900px;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.play .back {
+  align-self: flex-start;
+}
+
+.maze-wrap {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  padding-bottom: 14px; /* room for the maze shadow */
+  container-type: size;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .maze {
+  --maze-size: min(100cqw, 100cqh, 560px);
   position: relative;
   display: grid;
   margin: 0 auto;
-  width: min(92vw, 62vh, 560px);
+  width: var(--maze-size);
+  flex-shrink: 0;
   aspect-ratio: 1;
   background: var(--path);
   border: 8px solid var(--grass-dark);
