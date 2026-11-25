@@ -25,6 +25,10 @@ let ladybugEl = null;
 let finished = false;
 let audioCtx = null;
 
+// Per-page settings (set via data-* attributes on <body>)
+const GOAL = document.body.dataset.goal || "🖥️";
+const CONFETTI = (document.body.dataset.confetti || "🎉 ⭐ 🐞 🌸 🎈 ✨").split(" ");
+
 // DFS
 function generateMaze() {
   cells = Array.from({ length: ROWS }, () =>
@@ -88,7 +92,7 @@ function drawMaze() {
 
   const child = document.createElement("div");
   child.className = "child";
-  child.textContent = "🖥️";
+  child.textContent = GOAL;
   child.style.width = 100 / COLS + "%";
   child.style.height = 100 / ROWS + "%";
   placeAt(child, COLS - 1, ROWS - 1);
@@ -210,7 +214,7 @@ function win() {
   
   confettiEl.innerHTML = "";
   
-  const pieces = ["🎉", "⭐", "🐞", "🌸", "🎈", "✨"];
+  const pieces = CONFETTI;
   
   for (let i = 0; i < 200; i++) {
     const s = document.createElement("span");

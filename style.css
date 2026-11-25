@@ -308,6 +308,98 @@ h1 {
   box-shadow: 0 4px 0 #e6b93d;
 }
 
+/* ---------- Back link ---------- */
+
+.back {
+  display: block;
+  width: fit-content;
+  margin: 0 0 4px;
+  padding: 2px 14px;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--ink);
+  text-decoration: none;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.15);
+}
+
+.back:hover {
+  transform: translateY(-1px);
+}
+
+.back:focus-visible,
+.menu-card:focus-visible {
+  outline: 4px solid #ffeb3b;
+  outline-offset: 3px;
+}
+
+/* ---------- Menu (homepage) ---------- */
+
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 16px;
+  color: var(--ink);
+  text-decoration: none;
+  background: linear-gradient(160deg, #fff, #fff6c9);
+  border: 5px solid var(--grass-dark);
+  border-radius: 22px;
+  box-shadow: 0 8px 0 #1f6a2a, 0 12px 24px rgba(28, 88, 45, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.menu-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 0 #1f6a2a, 0 16px 28px rgba(28, 88, 45, 0.25);
+}
+
+.menu-card:active {
+  transform: translateY(4px);
+  box-shadow: 0 4px 0 #1f6a2a;
+}
+
+.menu-card-winter {
+  background: linear-gradient(160deg, #fff, #dff3ff);
+  border-color: #3a7bd5;
+  box-shadow: 0 8px 0 #24518f, 0 12px 24px rgba(36, 81, 143, 0.25);
+}
+
+.menu-card-winter:hover {
+  box-shadow: 0 12px 0 #24518f, 0 16px 28px rgba(36, 81, 143, 0.3);
+}
+
+.menu-card-winter:active {
+  box-shadow: 0 4px 0 #24518f;
+}
+
+.menu-icon {
+  font-size: 4rem;
+  line-height: 1.1;
+  animation: wave 1.6s ease-in-out infinite;
+}
+
+.menu-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #ff477e;
+}
+
+.menu-sub {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
 @media (max-width: 400px) {
   .game {
     padding: 8px;
@@ -325,6 +417,7 @@ h1 {
 
 @media (prefers-reduced-motion: reduce) {
   .child,
+  .menu-icon,
   .win-card img,
   .confetti span {
     animation: none;

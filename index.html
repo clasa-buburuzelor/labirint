@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bubu și labirintul</title>
+  <title>Bubu și labirinturile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
@@ -11,29 +11,21 @@
 </head>
 <body>
   <main class="game">
-    <h1>Ajutați-o pe Bubu să ajungă la calculator</h1>
-    <p id="level" class="level"></p>
-    <p class="hint">Apasă săgețile de pe tastatură ⬅️⬆️⬇️➡️</p>
+    <h1>Bubu și labirinturile</h1>
+    <p class="hint">Alege un labirint 🐞</p>
 
-    <div id="maze" class="maze" aria-label="Labirint"></div>
+    <nav class="menu" aria-label="Alege labirintul">
+      <a class="menu-card" href="labirint-calculator.html">
+        <span class="menu-icon">🖥️</span>
+        <span class="menu-title">Drumul spre calculator</span>
+        <span class="menu-sub">Labirint de primăvară 🌸</span>
+      </a>
+      <a class="menu-card menu-card-winter" href="labirint-iarna.html">
+        <span class="menu-icon">🎄</span>
+        <span class="menu-title">Drumul spre bradul de Crăciun</span>
+        <span class="menu-sub">Labirint de iarnă ❄️</span>
+      </a>
+    </nav>
   </main>
-
-  <div id="next" class="win" hidden>
-    <div class="win-card">
-      <h2>Bravo! Ai trecut nivelul! 🐞</h2>
-      <button id="go-next" class="again">Nivelul următor ➡️</button>
-    </div>
-  </div>
-
-  <div id="win" class="win" hidden>
-    <div class="win-card">
-      <h2>Bravo! Ai reușit! 🎉</h2>
-      <img src="images/bubu-final.webp" alt="Poză de sărbătoare">
-      <button id="again" class="again">Joacă din nou</button>
-    </div>
-    <div id="confetti" class="confetti" aria-hidden="true"></div>
-  </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
