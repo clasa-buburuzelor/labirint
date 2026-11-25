@@ -400,6 +400,124 @@ h1 {
   font-weight: 600;
 }
 
+/* ---------- Winter theme ---------- */
+
+body.theme-winter {
+  --wall: #4a90d9;
+  --path: #f4fbff;
+  --ink: #1d3f7a;
+
+  background-color: #1d3f7a;
+  background-image:
+    radial-gradient(
+      circle at 88% 9%,
+      #fffde7 0 32px,
+      rgba(255, 253, 231, 0.35) 33px 44px,
+      transparent 45px
+    ),
+
+    radial-gradient(circle at 8% 6%, #fff 0 2px, transparent 3px),
+    radial-gradient(circle at 22% 18%, #fff 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 35% 8%, #fff 0 2px, transparent 3px),
+    radial-gradient(circle at 55% 14%, #fff 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 66% 5%, #fff 0 2px, transparent 3px),
+    radial-gradient(circle at 76% 24%, #fff 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 95% 30%, #fff 0 2px, transparent 3px),
+
+    radial-gradient(ellipse at 0% 72%, #ffffff 0 18%, transparent 18.5%),
+    radial-gradient(ellipse at 100% 75%, #e3f2fd 0 22%, transparent 22.5%),
+
+    linear-gradient(
+      to bottom,
+      #0f2a5c 0%,
+      #2b5aa8 35%,
+      #8fc1f0 50%,
+      #eaf6ff 55%,
+      #ffffff 75%,
+      #d6ecff 100%
+    );
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.theme-winter h1 {
+  color: #e53935;
+}
+
+.theme-winter .hint {
+  color: #fff;
+  text-shadow: 0 2px 0 #1d3f7a;
+}
+
+.theme-winter .level {
+  background: linear-gradient(135deg, #fff, #e3f2fd);
+  box-shadow: 0 4px 0 #7fb3e8;
+}
+
+.theme-winter .maze {
+  border-color: #2f6fbf;
+  box-shadow:
+    0 8px 0 #1d4f8f,
+    0 12px 24px rgba(15, 42, 92, 0.35);
+}
+
+.theme-winter .win {
+  background: rgba(15, 42, 92, 0.9);
+}
+
+.theme-winter .win-card h2 {
+  text-shadow: 3px 3px 0 #e53935;
+}
+
+.theme-winter .again {
+  background: linear-gradient(135deg, #e53935, #2e7d32);
+  box-shadow: 0 6px 0 #8e1c1a;
+}
+
+.theme-winter .again:hover {
+  box-shadow: 0 8px 0 #8e1c1a;
+}
+
+.theme-winter .again:active {
+  box-shadow: 0 2px 0 #8e1c1a;
+}
+
+/* falling snow
+   The flakes are painted once on a layer taller than the screen; the
+   animation only moves it with transform (GPU), so nothing is repainted.
+   All tile sizes divide 200px, so shifting by 200px loops seamlessly. */
+.snow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.snow::before {
+  content: "";
+  position: absolute;
+  top: -200px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle, #fff 0 2px, transparent 3px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.85) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.7) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.8) 0 2px, transparent 3px);
+  background-size: 100px 100px, 200px 200px, 100px 100px, 200px 200px;
+  background-position: 0 0, 40px 60px, 70px 30px, 150px 140px;
+  will-change: transform;
+  animation: snowfall 8s linear infinite;
+}
+
+@keyframes snowfall {
+  to {
+    transform: translateY(200px);
+  }
+}
+
 @media (max-width: 400px) {
   .game {
     padding: 8px;
@@ -418,6 +536,7 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   .child,
   .menu-icon,
+  .snow::before,
   .win-card img,
   .confetti span {
     animation: none;
