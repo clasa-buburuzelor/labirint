@@ -28,6 +28,7 @@ let audioCtx = null;
 // Per-page settings (set via data-* attributes on <body>)
 const GOAL = document.body.dataset.goal || "🖥️";
 const CONFETTI = (document.body.dataset.confetti || "🎉 ⭐ 🐞 🌸 🎈 ✨").split(" ");
+const SOUND = document.body.dataset.sound || "fanfare"; // "fanfare" or "jingle"
 
 // DFS
 function generateMaze() {
@@ -198,7 +199,102 @@ function fanfare() {
   });
 }
 
+// Sleigh bells (zurgălăi), synthesized: each bell hit = a few inharmonic
+// metallic partials plus a short burst of high-pass filtered noise.
+let noiseBuffer = null;
+
+function getNoise(ctx) {
+  if (!noiseBuffer) {
+    noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  }
+
+  return noiseBuffer;
+}
+
+function bellHit(ctx, t, volume) {
+  const base = 2400 + Math.random() * 600;
+
+  [1, 1.5, 2.1, 2.8].forEach((ratio, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const decay = 0.12 + Math.random() * 0.15;
+    osc.type = "sine";
+    osc.frequency.value = base * ratio;
+    gain.gain.setValueAtTime(volume / (i + 1), t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + decay);
+  });
+
+  const noise = ctx.createBufferSource();
+  const filter = ctx.createBiquadFilter();
+  const gain = ctx.createGain();
+  noise.buffer = getNoise(ctx);
+  filter.type = "highpass";
+  filter.frequency.value = 7000;
+  gain.gain.setValueAtTime(volume * 0.6, t);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+  noise.connect(filter).connect(gain).connect(ctx.destination);
+  noise.start(t);
+  noise.stop(t + 0.06);
+}
+
+function jingleBells(seconds = 1.8) {
+  const ctx = getCtx();
+
+  if (!ctx) return;
+
+  // one "shake" every 0.18s; each shake = several bells hitting at once
+  for (let s = 0; s * 0.18 < seconds; s++) {
+    const shakeT = ctx.currentTime + s * 0.18;
+    const fade = 1 - (s * 0.18) / seconds;
+    const hits = 4 + Math.floor(Math.random() * 3);
+
+    for (let h = 0; h < hits; h++)
+      bellHit(ctx, shakeT + Math.random() * 0.06, (0.04 + Math.random() * 0.03) * (0.4 + 0.6 * fade));
+  }
+}
+
+// "Jingle bells, jingle bells, jingle all the way" with bells in the background
+function jingleSong() {
+  const ctx = getCtx();
+
+  if (!ctx) return;
+
+  const E = 659, G = 784, C = 523, D = 587;
+  const notes = [[E, 1], [E, 1], [E, 2], [E, 1], [E, 1], [E, 2], [E, 1], [G, 1], [C, 1.5], [D, 0.5], [E, 4]];
+  const beat = 0.28;
+  let t = ctx.currentTime;
+
+  notes.forEach(([f, len]) => {
+    [1, 2, 3.01].forEach((ratio, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = i === 0 ? "triangle" : "sine";
+      osc.frequency.value = f * ratio;
+      gain.gain.setValueAtTime(0.18 / (i * 2 + 1), t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + len * beat + 0.2);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + len * beat + 0.2);
+    });
+    t += len * beat;
+  });
+
+  jingleBells(t - ctx.currentTime + 0.5);
+}
+
+function playGoalSound() {
+  if (SOUND === "jingle") jingleBells();
+  else fanfare();
+}
+
 function playWinSound() {
+  if (SOUND === "jingle") { jingleSong(); return; }
+
   // Uses sounds/final.mp3 if it exists, otherwise a built-in fanfare.
   const audio = new Audio("sounds/final.mp3");
 
@@ -230,7 +326,7 @@ function finishLevel() {
   finished = true;
 
   if (levelIndex < LEVELS.length - 1) {
-    fanfare();
+    playGoalSound();
 
     nextEl.hidden = false;
   } else {
